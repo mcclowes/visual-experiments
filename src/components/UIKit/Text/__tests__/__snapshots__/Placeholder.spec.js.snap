@@ -1,0 +1,185 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Text Header renders default component 1`] = `
+<StyledComponent
+  forwardedComponent={
+    Object {
+      "$$typeof": Symbol(react.forward_ref),
+      "_foldedDefaultProps": Object {
+        "theme": Object {
+          "colors": Object {
+            "black": "#333333",
+          },
+        },
+      },
+      "attrs": Array [],
+      "componentStyle": ComponentStyle {
+        "componentId": "csx__Paragraph-sc-5c5e0o-1",
+        "isStatic": false,
+        "rules": Array [
+          "color:",
+          [Function],
+          ";font-family:Helventica,Arial,sans-serif;",
+        ],
+      },
+      "displayName": "csx__Paragraph",
+      "foldedComponentIds": Array [],
+      "render": [Function],
+      "styledComponentId": "csx__Paragraph-sc-5c5e0o-1",
+      "target": "p",
+      "toString": [Function],
+      "usesTheme": true,
+      "warnTooManyClasses": [Function],
+      "withComponent": [Function],
+    }
+  }
+  forwardedRef={null}
+  theme={
+    Object {
+      "colors": Object {
+        "black": "#333333",
+      },
+    }
+  }
+>
+  Some text goes here
+</StyledComponent>
+`;
+
+exports[`Text Text renders default component 1`] = `
+<StyledComponent
+  forwardedComponent={
+    Object {
+      "$$typeof": Symbol(react.forward_ref),
+      "_foldedDefaultProps": Object {
+        "theme": Object {
+          "colors": Object {
+            "black": "#333333",
+          },
+        },
+      },
+      "attrs": Array [],
+      "componentStyle": ComponentStyle {
+        "componentId": "csx__Paragraph-sc-5c5e0o-1",
+        "isStatic": false,
+        "rules": Array [
+          "color:",
+          [Function],
+          ";font-family:Helventica,Arial,sans-serif;",
+        ],
+      },
+      "displayName": "csx__Paragraph",
+      "foldedComponentIds": Array [],
+      "render": [Function],
+      "styledComponentId": "csx__Paragraph-sc-5c5e0o-1",
+      "target": "p",
+      "toString": [Function],
+      "usesTheme": true,
+      "warnTooManyClasses": [Function],
+      "withComponent": [Function],
+    }
+  }
+  forwardedRef={null}
+  theme={
+    Object {
+      "colors": Object {
+        "black": "#333333",
+      },
+    }
+  }
+>
+  Some text goes here
+</StyledComponent>
+`;
+
+exports[`Text Text renders default component 2`] = `
+<StyledComponent
+  forwardedComponent={
+    Object {
+      "$$typeof": Symbol(react.forward_ref),
+      "_foldedDefaultProps": Object {
+        "theme": Object {
+          "colors": Object {
+            "black": "#333333",
+          },
+        },
+      },
+      "attrs": Array [],
+      "componentStyle": ComponentStyle {
+        "componentId": "csx__Paragraph-sc-5c5e0o-1",
+        "isStatic": false,
+        "rules": Array [
+          "color:",
+          [Function],
+          ";font-family:Helventica,Arial,sans-serif;",
+        ],
+      },
+      "displayName": "csx__Paragraph",
+      "foldedComponentIds": Array [],
+      "render": [Function],
+      "styledComponentId": "csx__Paragraph-sc-5c5e0o-1",
+      "target": "p",
+      "toString": [Function],
+      "usesTheme": true,
+      "warnTooManyClasses": [Function],
+      "withComponent": [Function],
+    }
+  }
+  forwardedRef={null}
+  theme={
+    Object {
+      "colors": Object {
+        "black": "#333333",
+      },
+    }
+  }
+>
+  Some text goes here
+</StyledComponent>
+`;
+
+exports[`Text renders default component 1`] = `
+<StyledComponent
+  forwardedComponent={
+    Object {
+      "$$typeof": Symbol(react.forward_ref),
+      "_foldedDefaultProps": Object {
+        "theme": Object {
+          "colors": Object {
+            "black": "#333333",
+          },
+        },
+      },
+      "attrs": Array [],
+      "componentStyle": ComponentStyle {
+        "componentId": "csx__Paragraph-sc-5c5e0o-1",
+        "isStatic": false,
+        "rules": Array [
+          "color:",
+          [Function],
+          ";font-family:Helventica,Arial,sans-serif;",
+        ],
+      },
+      "displayName": "csx__Paragraph",
+      "foldedComponentIds": Array [],
+      "render": [Function],
+      "styledComponentId": "csx__Paragraph-sc-5c5e0o-1",
+      "target": "p",
+      "toString": [Function],
+      "usesTheme": true,
+      "warnTooManyClasses": [Function],
+      "withComponent": [Function],
+    }
+  }
+  forwardedRef={null}
+  theme={
+    Object {
+      "colors": Object {
+        "black": "#333333",
+      },
+    }
+  }
+>
+  Some text goes here
+</StyledComponent>
+`;

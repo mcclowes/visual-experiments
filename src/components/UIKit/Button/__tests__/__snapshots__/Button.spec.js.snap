@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button renders component 1`] = `
+<csx__ButtonWrapper
+  subtle={false}
+  theme={
+    Object {
+      "colors": Object {
+        "alt": "#888888",
+        "primary": "#aaaaaa",
+        "white": "#ffffff",
+      },
+      "sizes": Object {
+        "border": Object {
+          "radius": "3px",
+        },
+      },
+    }
+  }
+  to="/"
+>
+  Default Button
+</csx__ButtonWrapper>
+`;
