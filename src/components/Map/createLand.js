@@ -21,6 +21,18 @@ const selectParent = (parentTop, parentLeft, parentTopLeft) => {
   return (parentTop + parentLeft + parentTopLeft) / 3;
 };
 
+const undulate = base => {
+  const rand = randomNumber(7);
+
+  if (rand === 1) {
+    return base;
+  } else if (rand === 2 || rand === 3 || rand === 4) {
+    return base - randomNumber(2);
+  } else {
+    return base + randomNumber(2);
+  }
+};
+
 const createLand = (height, width) => {
   const land = Array(width).fill(0);
 
@@ -41,17 +53,7 @@ const createLand = (height, width) => {
           base = selectParent(land[i - 1][j], arr[j - 1], land[i - 1][j - 1]);
         }
 
-        const rand = randomNumber(7);
-
-        if (rand === 1) {
-          // stay the same
-          arr[j] = base;
-        } else if (rand === 2 || rand === 3 || rand === 4) {
-          // stay the same
-          arr[j] = base - 1;
-        } else {
-          arr[j] = base + 1;
-        }
+        arr[j] = undulate(base);
       }
     }
 
