@@ -1,13 +1,12 @@
-import createLand from "./createLand";
-import drawLand from "./drawLand";
 import React, { Component } from "react";
-import { randomItem, randomNumber } from "./utils/random";
+import { createGeology, drawGeology } from "./geology";
+import { createLand, drawLand } from "./land";
 import { drawTriangle, drawHouse, drawRiver } from "./draw";
+import { randomItem, randomNumber } from "./utils/random";
 
-const HEIGHT = 1000;
-const WIDTH = 2000;
+const HEIGHT = 400;
+const WIDTH = 400;
 const WATER_LEVEL = 110;
-const COLORS = ["#FFCC00", "#aaCC00", "#FFaa00", "#FFCCcc"];
 
 class Map extends Component {
   componentDidMount() {
@@ -15,20 +14,21 @@ class Map extends Component {
 
     const context = canvas.getContext("2d");
 
-    context.fillText(this.props.text, 210, 75);
+    const geology = createGeology(HEIGHT, WIDTH);
+    //drawGeology(context, geology);
 
-    const land = createLand(HEIGHT, WIDTH);
-
-    drawLand(context, land, WATER_LEVEL);
-
-    drawHouse(context);
-    drawHouse(context);
-    drawHouse(context);
-    drawHouse(context);
-    drawHouse(context);
-    drawHouse(context);
-
-    drawRiver(context);
+    const land = createLand(geology);
+    //drawLand(context, land, WATER_LEVEL);
+    drawLand(context, land, WATER_LEVEL, false, false);
+    console.log(land);
+    //     drawHouse(context);
+    //     drawHouse(context);
+    //     drawHouse(context);
+    //     drawHouse(context);
+    //     drawHouse(context);
+    //     drawHouse(context);
+    //
+    //     drawRiver(context);
   }
 
   render() {
