@@ -2,11 +2,11 @@ import { randomItem, randomNumber } from "./utils/random";
 import { gaussianBlur } from "./utils/imaging";
 
 const selectParent = (parentTop, parentLeft, parentTopLeft) => {
-  const rand = randomNumber(13);
+  const rand = randomNumber(7);
 
-  if (rand === 1 || rand === 7 || rand === 8 || rand === 9) {
+  if (rand === 1) {
     return parentTop;
-  } else if (rand === 2 || rand === 10 || rand === 11 || rand === 12) {
+  } else if (rand === 2) {
     return parentLeft;
   } else if (rand === 3) {
     return parentTopLeft;
@@ -37,7 +37,9 @@ const createLand = (height, width) => {
   const land = Array(width).fill(0);
 
   for (let i = 0; i < land.length - 1; i++) {
-    const arr = Array(height).fill(125);
+    const arr = Array(height)
+      .fill(125)
+      .map(_ => randomNumber(50) + 100);
 
     for (let j = 0; j < arr.length - 1; j++) {
       if (j !== 0) {
@@ -61,11 +63,11 @@ const createLand = (height, width) => {
   }
 
   //return land
-  //return gaussianBlur(land)
+  return gaussianBlur(land);
   //return gaussianBlur(gaussianBlur(gaussianBlur(land)));
-  return gaussianBlur(
-    gaussianBlur(gaussianBlur(gaussianBlur(gaussianBlur(land))))
-  );
+  // return gaussianBlur(
+  //   gaussianBlur(gaussianBlur(gaussianBlur(gaussianBlur(land))))
+  // );
 };
 
 export default createLand;

@@ -3,19 +3,19 @@ import { randomItem, randomNumber } from "./utils/random";
 const landColor = (height, heatMap) => {
   if (heatMap) {
     if (height > 220) {
-      return `rgba(185, 10, 10, 0.8`;
+      return `rgba(255, 102, 102, 0.8`; //dark red
     } else if (height >= 200) {
-      return `rgba(185, 50, 50, 0.8`;
+      return `rgba(255, 50, 50, 0.8`;
     } else if (height >= 180) {
-      return `rgba(185, 100, 100, 0.8`;
+      return `rgba(255, 128, 0, 0.8`; //orange
     } else if (height >= 160) {
-      return `rgba(185, 10, 10, 0.8`;
+      return `rgba(204, 204, 0, 0.8`; //yellow
     } else if (height >= 140) {
-      return `rgba(10, 185, 10, 0.8`;
+      return `rgba(102, 204, 10, 0.8`; //green
     } else if (height >= 120) {
-      return `rgba(10, 185, 185, 0.8`;
+      return `rgba(0, 205, 0, 0.8`;
     } else if (height >= 100) {
-      return `rgba(10, 10, 185, 0.8`;
+      return `rgba(0, 51, 0, 0.8`; //dark green
     }
   }
 
