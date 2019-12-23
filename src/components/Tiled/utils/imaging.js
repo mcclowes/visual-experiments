@@ -12,6 +12,22 @@ const applyLens = (size, array, i, j) => {
   ); // 3 -
 };
 
+export const sumLens = (grid, i, j, radius) => {
+  let total = 0;
+
+  for (let x = i - radius; x <= i + radius; x++) {
+    if (grid[x]) {
+      for (let y = j - radius; y <= j + radius; y++) {
+        if (grid[y]) {
+          total = total + grid[x][y];
+        }
+      }
+    }
+  }
+
+  return total;
+};
+
 export const gaussianBlur = arr => {
   let matrix = arr;
 
