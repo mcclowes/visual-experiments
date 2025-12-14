@@ -272,7 +272,8 @@ class Tiled extends Component {
       drawGrid(context, grid, width, height, generatorType);
     } else {
       // All dungeon-style generators use the unified drawTile renderer
-      context.fillStyle = "#2d2d2d";
+      // Darker background with subtle blue tint for depth
+      context.fillStyle = "#252830";
       context.fillRect(0, 0, width, height);
 
       const widthIncrement = width / grid[0].length;
