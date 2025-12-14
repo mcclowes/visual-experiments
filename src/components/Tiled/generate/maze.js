@@ -9,12 +9,12 @@ import { randomItem } from "../utils/random";
  * Also includes variants like Prim's algorithm and recursive division.
  */
 
-// Tile types
+// Tile types (4 and 5 for start/end to avoid conflict with door types 2/3)
 const TILES = {
   WALL: 0,
   PASSAGE: 1,
-  START: 2,
-  END: 3
+  START: 4,
+  END: 5
 };
 
 // Directions with wall-carving offsets (move 2 cells at a time)
