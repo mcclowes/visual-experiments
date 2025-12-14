@@ -9,6 +9,9 @@ import generateBSP from "./generate/bsp";
 import generatePerlin from "./generate/perlin";
 import generateMaze from "./generate/maze";
 
+// AI Generator
+import AIMapGenerator from "./AIMapGenerator";
+
 // Drawing
 import drawGrid from "./draw/drawGrid";
 import drawTile from "./draw/tile";
@@ -24,6 +27,12 @@ const TILES_Y = 32;
 
 // Generator configurations
 const GENERATORS = {
+  ai: {
+    name: "AI Location Generator",
+    description: "Describe a location and AI will create the map",
+    generate: null, // AI generation is handled separately via the component
+    isAI: true
+  },
   default: {
     name: "Default Grid",
     description: "Pre-made dungeon grid",
@@ -102,6 +111,7 @@ const GENERATORS = {
 
 // Generator categories for UI organization
 const GENERATOR_CATEGORIES = {
+  "AI": ["ai"],
   "Dungeon": ["default", "caves", "wfc", "bsp"],
   "Random Walk": ["drunkard", "drunkard-simple", "drunkard-multi"],
   "Terrain": ["perlin", "perlin-continent"],
@@ -238,6 +248,7 @@ class Tiled extends Component {
     this.canvasRef = React.createRef();
     this.createGrid = this.createGrid.bind(this);
     this.drawGrid = this.drawGrid.bind(this);
+    this.handleAIGenerate = this.handleAIGenerate.bind(this);
   }
 
   componentDidMount() {
@@ -251,6 +262,12 @@ class Tiled extends Component {
       return;
     }
 
+    // AI generator is handled separately
+    if (generator.isAI) {
+      this.setState({ generatorType: type });
+      return;
+    }
+
     const grid = generator.generate(this.state.tilesX);
 
     this.setState({
@@ -259,6 +276,11 @@ class Tiled extends Component {
     });
 
     this.drawGrid(grid, this.state.width, this.state.height, type);
+  }
+
+  handleAIGenerate(grid) {
+    this.setState({ grid });
+    this.drawGrid(grid, this.state.width, this.state.height, "ai");
   }
 
   drawGrid(grid, width, height, generatorType) {
@@ -288,6 +310,7 @@ class Tiled extends Component {
 
   render() {
     const currentGenerator = GENERATORS[this.state.generatorType];
+    const isAIMode = currentGenerator?.isAI;
 
     return (
       <Container>
@@ -312,15 +335,26 @@ class Tiled extends Component {
           ))}
         </Controls>
 
-        <InfoPanel>
-          <InfoText>
-            <GeneratorName>{currentGenerator?.name}</GeneratorName>
-            <GeneratorDesc>— {currentGenerator?.description}</GeneratorDesc>
-          </InfoText>
-          <RegenerateButton onClick={() => this.createGrid(this.state.generatorType)}>
-            ↻ Regenerate
-          </RegenerateButton>
-        </InfoPanel>
+        {/* AI Generator Interface */}
+        {isAIMode && (
+          <AIMapGenerator
+            onGenerate={this.handleAIGenerate}
+            gridSize={this.state.tilesX}
+          />
+        )}
+
+        {/* Standard Generator Info Panel */}
+        {!isAIMode && (
+          <InfoPanel>
+            <InfoText>
+              <GeneratorName>{currentGenerator?.name}</GeneratorName>
+              <GeneratorDesc>— {currentGenerator?.description}</GeneratorDesc>
+            </InfoText>
+            <RegenerateButton onClick={() => this.createGrid(this.state.generatorType)}>
+              ↻ Regenerate
+            </RegenerateButton>
+          </InfoPanel>
+        )}
 
         <CanvasContainer>
           <StyledCanvas ref={this.canvasRef} width={WIDTH} height={HEIGHT} />
