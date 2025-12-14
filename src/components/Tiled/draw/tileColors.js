@@ -22,21 +22,12 @@ export const terrainPalette = {
   5: "#9e9e9e"       // Mountain - gray
 };
 
-// Maze palette
+// Maze palette (unified with dungeon style, but with distinct start/end markers)
 export const mazePalette = {
-  0: "#1a1a2e",      // Wall - dark navy
-  1: "#eee8d5",      // Passage - light cream
-  2: "#2ecc71",      // Start - green
-  3: "#e74c3c"       // End - red
-};
-
-// WFC palette (more varied)
-export const wfcPalette = {
-  0: "#2c3e50",      // Empty - dark blue-gray
-  1: "#ecf0f1",      // Floor - off-white
-  2: "#e67e22",      // Door - orange
-  3: "#8e44ad",      // Wall - purple
-  4: "#bdc3c7"       // Corridor - light gray
+  0: "#2d2d2d",      // Wall - dark gray (matches dungeon)
+  1: "#fefef4",      // Passage - light cream (matches dungeon)
+  2: "#4a7c4e",      // Start - muted green (harmonizes with dungeon)
+  3: "#8b4513"       // End - brown (matches dungeon doors)
 };
 
 /**
@@ -45,16 +36,20 @@ export const wfcPalette = {
 export const getPalette = generatorType => {
   switch (generatorType) {
     case "perlin":
+    case "perlin-continent":
       return terrainPalette;
     case "maze":
     case "maze-prims":
     case "maze-division":
+    case "maze-imperfect":
       return mazePalette;
+    // All dungeon-style generators use the same palette for visual consistency
     case "wfc":
-      return wfcPalette;
     case "caves":
     case "bsp":
     case "drunkard":
+    case "drunkard-simple":
+    case "drunkard-multi":
     default:
       return dungeonPalette;
   }

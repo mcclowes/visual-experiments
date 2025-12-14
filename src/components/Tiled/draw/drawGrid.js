@@ -107,18 +107,33 @@ const drawTerrainTile = (context, x, y, width, height, grid, palette) => {
 };
 
 /**
- * Draw maze-style tile
+ * Draw maze-style tile (unified with dungeon style)
  */
 const drawMazeTile = (context, x, y, width, height, grid, palette) => {
   const xCo = x * width;
   const yCo = y * height;
   const tileType = grid[y][x];
 
-  // Base color
-  context.fillStyle = palette[tileType] || "#ff00ff";
+  // Wall tiles - same as dungeon style
+  if (tileType === 0) {
+    context.fillStyle = palette[0];
+    context.fillRect(xCo, yCo, width, height);
+    return;
+  }
+
+  // Background shadow for non-wall tiles (matches dungeon style)
+  context.fillStyle = "#888888";
+  context.fillRect(xCo + 2, yCo + 2, width, height);
+
+  // Main tile
+  context.fillStyle = palette[tileType] || palette[1];
   context.fillRect(xCo, yCo, width, height);
 
-  // Start marker
+  // Grid lines (matches dungeon style)
+  context.strokeStyle = "rgba(0, 0, 0, 0.1)";
+  context.strokeRect(xCo, yCo, width, height);
+
+  // Start marker (white arrow)
   if (tileType === 2) {
     context.fillStyle = "#ffffff";
     context.beginPath();
@@ -129,23 +144,12 @@ const drawMazeTile = (context, x, y, width, height, grid, palette) => {
     context.fill();
   }
 
-  // End marker
+  // End marker (white circle)
   if (tileType === 3) {
     context.fillStyle = "#ffffff";
     context.beginPath();
     context.arc(xCo + width * 0.5, yCo + height * 0.5, width * 0.25, 0, Math.PI * 2);
     context.fill();
-  }
-
-  // Wall shading for 3D effect
-  if (tileType === 0) {
-    // Right edge highlight
-    context.fillStyle = "rgba(255, 255, 255, 0.1)";
-    context.fillRect(xCo + width - 2, yCo, 2, height);
-
-    // Bottom edge shadow
-    context.fillStyle = "rgba(0, 0, 0, 0.2)";
-    context.fillRect(xCo, yCo + height - 2, width, 2);
   }
 };
 
