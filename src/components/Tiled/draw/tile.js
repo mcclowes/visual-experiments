@@ -1,221 +1,343 @@
-import roundRect from "./rectangle";
+/**
+ * Classic D&D Dungeon Map Tile Renderer
+ *
+ * Renders tiles in the style of classic hand-drawn dungeon maps with:
+ * - Crosshatched wall areas
+ * - Clean white/cream floor tiles with subtle grid
+ * - Solid black borders where floors meet walls
+ * - Classic door symbols
+ */
 
-const fill = squareType => {
-  if (squareType === 1 || squareType === 2) {
-    return `#fefef4`;
-  }
-  // Start marker - muted green
-  if (squareType === 4) {
-    return `#4a7c4e`;
-  }
-  // End marker - brown (like doors)
-  if (squareType === 5) {
-    return `#8b4513`;
-  }
-
-  //return `rgba(204, 204, 0, 0.8)`; //yellow
-  return `rgba(248, 248, 244, 1)`; //grey
+const COLORS = {
+  floor: "#fefef8",      // Slightly off-white/cream for floor
+  floorGrid: "#e0e0e0",  // Subtle grid lines on floor
+  wall: "#ffffff",       // White background for crosshatch
+  crosshatch: "#444444", // Dark gray for crosshatch lines
+  border: "#000000",     // Black for room borders
+  door: "#fefef8",       // Door background (same as floor)
+  doorFrame: "#000000"   // Door frame color
 };
 
-const findEdges = (grid, x, y) => {
+/**
+ * Check if a tile is a floor-type tile (walkable)
+ */
+const isFloorType = (tileType) => {
+  return tileType === 1 || tileType === 2 || tileType === 3 || tileType === 4 || tileType === 5;
+};
+
+/**
+ * Find which edges of a tile border walls (tile type 0)
+ * Returns [top, right, bottom, left]
+ */
+const findWallEdges = (grid, x, y) => {
   const edges = [false, false, false, false];
 
-  if (y !== 0 && grid[y - 1][x] === 0) {
+  // Top edge
+  if (y === 0 || grid[y - 1][x] === 0) {
     edges[0] = true;
   }
-  if (x !== grid[0].length - 1 && grid[y][x + 1] === 0) {
+  // Right edge
+  if (x === grid[0].length - 1 || grid[y][x + 1] === 0) {
     edges[1] = true;
   }
-  if (y !== grid.length - 1 && grid[y + 1][x] === 0) {
+  // Bottom edge
+  if (y === grid.length - 1 || grid[y + 1][x] === 0) {
     edges[2] = true;
   }
-  if (x !== 0 && grid[y][x - 1] === 0) {
+  // Left edge
+  if (x === 0 || grid[y][x - 1] === 0) {
     edges[3] = true;
   }
 
   return edges;
 };
 
-const findCorners = edges => {
+/**
+ * Check for diagonal corners that need wall borders
+ * Returns [topLeft, topRight, bottomRight, bottomLeft]
+ */
+const findDiagonalWalls = (grid, x, y) => {
   const corners = [false, false, false, false];
-  if (edges[3] && edges[0]) {
+
+  // Top-left diagonal
+  if (x > 0 && y > 0 && grid[y - 1][x - 1] === 0) {
     corners[0] = true;
   }
-  if (edges[0] && edges[1]) {
+  // Top-right diagonal
+  if (x < grid[0].length - 1 && y > 0 && grid[y - 1][x + 1] === 0) {
     corners[1] = true;
   }
-  if (edges[1] && edges[2]) {
+  // Bottom-right diagonal
+  if (x < grid[0].length - 1 && y < grid.length - 1 && grid[y + 1][x + 1] === 0) {
     corners[2] = true;
   }
-  if (edges[2] && edges[3]) {
+  // Bottom-left diagonal
+  if (x > 0 && y < grid.length - 1 && grid[y + 1][x - 1] === 0) {
     corners[3] = true;
   }
+
   return corners;
 };
 
+/**
+ * Draw crosshatch pattern for wall tiles
+ */
+const drawCrosshatch = (context, x, y, width, height, density = 4) => {
+  context.save();
+
+  // Create clipping region
+  context.beginPath();
+  context.rect(x, y, width, height);
+  context.clip();
+
+  context.strokeStyle = COLORS.crosshatch;
+  context.lineWidth = 1;
+
+  const spacing = width / density;
+  const diagonal = Math.sqrt(width * width + height * height);
+
+  // Draw diagonal lines (top-left to bottom-right)
+  context.beginPath();
+  for (let i = -diagonal; i < diagonal * 2; i += spacing) {
+    context.moveTo(x + i, y);
+    context.lineTo(x + i + height, y + height);
+  }
+  context.stroke();
+
+  // Draw diagonal lines (top-right to bottom-left)
+  context.beginPath();
+  for (let i = -diagonal; i < diagonal * 2; i += spacing) {
+    context.moveTo(x + width + i, y);
+    context.lineTo(x + width + i - height, y + height);
+  }
+  context.stroke();
+
+  context.restore();
+};
+
+/**
+ * Draw floor tile with subtle grid
+ */
+const drawFloorTile = (context, x, y, width, height) => {
+  // Fill with floor color
+  context.fillStyle = COLORS.floor;
+  context.fillRect(x, y, width, height);
+
+  // Draw subtle grid lines
+  context.strokeStyle = COLORS.floorGrid;
+  context.lineWidth = 0.5;
+  context.setLineDash([]);
+
+  context.beginPath();
+  // Right edge grid line
+  context.moveTo(x + width, y);
+  context.lineTo(x + width, y + height);
+  // Bottom edge grid line
+  context.moveTo(x, y + height);
+  context.lineTo(x + width, y + height);
+  context.stroke();
+};
+
+/**
+ * Draw wall borders on edges that touch walls
+ */
+const drawWallBorders = (context, x, y, width, height, wallEdges, diagonalWalls) => {
+  context.strokeStyle = COLORS.border;
+  context.lineWidth = 2;
+  context.setLineDash([]);
+
+  context.beginPath();
+
+  // Top border
+  if (wallEdges[0]) {
+    context.moveTo(x, y);
+    context.lineTo(x + width, y);
+  }
+
+  // Right border
+  if (wallEdges[1]) {
+    context.moveTo(x + width, y);
+    context.lineTo(x + width, y + height);
+  }
+
+  // Bottom border
+  if (wallEdges[2]) {
+    context.moveTo(x + width, y + height);
+    context.lineTo(x, y + height);
+  }
+
+  // Left border
+  if (wallEdges[3]) {
+    context.moveTo(x, y + height);
+    context.lineTo(x, y);
+  }
+
+  context.stroke();
+};
+
+/**
+ * Draw a door symbol
+ */
+const drawDoor = (context, x, y, width, height, wallEdges) => {
+  // First draw as floor
+  drawFloorTile(context, x, y, width, height);
+
+  // Determine door orientation based on which edges have walls
+  const isVertical = wallEdges[0] && wallEdges[2]; // walls top and bottom = vertical door
+  const isHorizontal = wallEdges[1] && wallEdges[3]; // walls left and right = horizontal door
+
+  context.strokeStyle = COLORS.doorFrame;
+  context.fillStyle = COLORS.floor;
+  context.lineWidth = 2;
+  context.setLineDash([]);
+
+  if (isVertical) {
+    // Door on left/right walls - draw horizontal door symbol
+    const doorWidth = width * 0.8;
+    const doorHeight = height * 0.15;
+    const doorX = x + (width - doorWidth) / 2;
+    const doorY = y + (height - doorHeight) / 2;
+
+    // Door rectangle
+    context.fillRect(doorX, doorY, doorWidth, doorHeight);
+    context.strokeRect(doorX, doorY, doorWidth, doorHeight);
+
+    // Draw wall continuation on top and bottom
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x + width, y);
+    context.moveTo(x, y + height);
+    context.lineTo(x + width, y + height);
+    context.stroke();
+  } else if (isHorizontal) {
+    // Door on top/bottom walls - draw vertical door symbol
+    const doorWidth = width * 0.15;
+    const doorHeight = height * 0.8;
+    const doorX = x + (width - doorWidth) / 2;
+    const doorY = y + (height - doorHeight) / 2;
+
+    // Door rectangle
+    context.fillRect(doorX, doorY, doorWidth, doorHeight);
+    context.strokeRect(doorX, doorY, doorWidth, doorHeight);
+
+    // Draw wall continuation on left and right
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x, y + height);
+    context.moveTo(x + width, y);
+    context.lineTo(x + width, y + height);
+    context.stroke();
+  } else {
+    // Default: draw a simple door marker
+    context.beginPath();
+    context.arc(x + width / 2, y + height / 2, width * 0.2, 0, Math.PI * 2);
+    context.stroke();
+  }
+};
+
+/**
+ * Draw a secret door symbol (S marking)
+ */
+const drawSecretDoor = (context, x, y, width, height, wallEdges) => {
+  // Draw as regular door first
+  drawDoor(context, x, y, width, height, wallEdges);
+
+  // Add 'S' marker
+  context.fillStyle = COLORS.border;
+  context.font = `bold ${Math.floor(width * 0.4)}px serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText("S", x + width / 2, y + height / 2);
+};
+
+/**
+ * Draw start marker
+ */
+const drawStartMarker = (context, x, y, width, height, wallEdges) => {
+  // Draw floor first
+  drawFloorTile(context, x, y, width, height);
+  drawWallBorders(context, x, y, width, height, wallEdges, []);
+
+  // Draw arrow pointing right (entrance)
+  context.fillStyle = "#2d5a27";
+  context.beginPath();
+  context.moveTo(x + width * 0.25, y + height * 0.25);
+  context.lineTo(x + width * 0.75, y + height * 0.5);
+  context.lineTo(x + width * 0.25, y + height * 0.75);
+  context.closePath();
+  context.fill();
+};
+
+/**
+ * Draw end marker
+ */
+const drawEndMarker = (context, x, y, width, height, wallEdges) => {
+  // Draw floor first
+  drawFloorTile(context, x, y, width, height);
+  drawWallBorders(context, x, y, width, height, wallEdges, []);
+
+  // Draw X or target symbol
+  context.strokeStyle = "#8b2500";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(x + width * 0.25, y + height * 0.25);
+  context.lineTo(x + width * 0.75, y + height * 0.75);
+  context.moveTo(x + width * 0.75, y + height * 0.25);
+  context.lineTo(x + width * 0.25, y + height * 0.75);
+  context.stroke();
+};
+
+/**
+ * Main tile drawing function
+ */
 const drawTile = (context, width, height) => (x, y, grid) => {
   const xCo = x * width;
   const yCo = y * height;
-
   const squareType = grid[y][x];
+
+  // Wall tiles - draw crosshatch
   if (squareType === 0) {
+    drawCrosshatch(context, xCo, yCo, width, height, 4);
     return;
   }
 
-  // edges and corners
-  const edges = findEdges(grid, x, y);
-  const corners = findCorners(edges);
+  const wallEdges = findWallEdges(grid, x, y);
+  const diagonalWalls = findDiagonalWalls(grid, x, y);
 
-  const applyBgRadius = corner => (!!corner ? (width + 10) / 2 : 0);
-  let bgRadius = [
-    applyBgRadius(corners[0]),
-    applyBgRadius(corners[1]),
-    applyBgRadius(corners[2]),
-    applyBgRadius(corners[3])
-  ];
-
-  // background
-  context.fillStyle = "#aaaaaa";
-
-  let bgX = xCo;
-  let bgY = yCo;
-  let bgWidth = width;
-  let bgHeight = height;
-
-  if (edges[3]) {
-    bgX = bgX - 5;
-    bgWidth = bgWidth + 5;
-  }
-  if (edges[0]) {
-    bgY = bgY - 5;
-    bgHeight = bgHeight + 5;
+  // Floor tile
+  if (squareType === 1) {
+    drawFloorTile(context, xCo, yCo, width, height);
+    drawWallBorders(context, xCo, yCo, width, height, wallEdges, diagonalWalls);
+    return;
   }
 
-  if (edges[1]) {
-    bgWidth = bgWidth + 5;
-  }
-  if (edges[2]) {
-    bgHeight = bgHeight + 5;
-  }
-
-  roundRect(context, bgX, bgY, bgWidth, bgHeight, bgRadius, true, false);
-
-  // lines
-  // context.fillStyle = `rgba(0, 51, 0, 0.8)`; dark green
-  // context.fillRect(xCo, yCo, width, height);
-
-  // fill
-  context.fillStyle = fill(squareType);
-  const applyRadius = corner => (!!corner ? width / 2 : 0);
-  let radius = [
-    applyRadius(corners[0]),
-    applyRadius(corners[1]),
-    applyRadius(corners[2]),
-    applyRadius(corners[3])
-  ];
-  roundRect(context, xCo, yCo, width, height, radius, true, false);
-
-  // drawLines ignoring corners
-  context.setLineDash([5, 3]); /*dashes are 5px and spaces are 3px*/
-  context.beginPath();
-  context.moveTo(xCo, yCo);
-
-  if (edges[0]) {
-    context.moveTo(xCo + width, yCo);
-  } else {
-    context.lineTo(xCo + width, yCo);
-  }
-
-  if (edges[1]) {
-    context.moveTo(xCo + width, yCo + height);
-  } else {
-    context.lineTo(xCo + width, yCo + height);
-  }
-
-  // cover top and right only
-  //   if(edges[2]) {
-  //     context.moveTo(xCo, yCo + height);
-  //   } else {
-  //     context.lineTo(xCo, yCo + height);
-  //   }
-  //
-  //   if(edges[3]) {
-  //     context.moveTo(xCo, yCo);
-  //   } else {
-  //     context.lineTo(xCo, yCo);
-  //   }
-
-  context.strokeStyle = `rgba(100, 100, 100, 0.75)`;
-  context.stroke();
-
-  // door
+  // Door
   if (squareType === 2) {
-    context.fillStyle = "#aaaaaa";
-
-    let secret = [0, 0, 0, 0];
-    if (edges[0]) {
-      secret[0] = true;
-    }
-    if (edges[1]) {
-      secret[1] = true;
-    }
-    if (edges[2]) {
-      secret[2] = true;
-    }
-    if (edges[3]) {
-      secret[3] = true;
-    }
-
-    if (secret[0] && secret[2]) {
-      context.fillRect(xCo + width / 2 - 2, yCo, 4, height);
-    } else {
-      context.fillRect(xCo, yCo + height / 2 - 2, width, 4);
-    }
+    drawDoor(context, xCo, yCo, width, height, wallEdges);
+    return;
   }
 
-  // secret door
+  // Secret door
   if (squareType === 3) {
-    context.fillStyle = "#aaaaaa";
-
-    let secret = [0, 0, 0, 0];
-    if (edges[0]) {
-      secret[0] = true;
-    }
-    if (edges[1]) {
-      secret[1] = true;
-    }
-    if (edges[2]) {
-      secret[2] = true;
-    }
-    if (edges[3]) {
-      secret[3] = true;
-    }
-
-    if (secret[0] && secret[2]) {
-      context.fillRect(xCo + width / 6, yCo, (width / 3) * 2, height);
-    } else {
-      context.fillRect(xCo, yCo + height / 6, width, (height / 3) * 2);
-    }
+    drawSecretDoor(context, xCo, yCo, width, height, wallEdges);
+    return;
   }
 
-  // start marker (arrow)
+  // Start marker
   if (squareType === 4) {
-    context.fillStyle = "#ffffff";
-    context.beginPath();
-    context.moveTo(xCo + width * 0.3, yCo + height * 0.2);
-    context.lineTo(xCo + width * 0.7, yCo + height * 0.5);
-    context.lineTo(xCo + width * 0.3, yCo + height * 0.8);
-    context.closePath();
-    context.fill();
+    drawStartMarker(context, xCo, yCo, width, height, wallEdges);
+    return;
   }
 
-  // end marker (circle)
+  // End marker
   if (squareType === 5) {
-    context.fillStyle = "#ffffff";
-    context.beginPath();
-    context.arc(xCo + width * 0.5, yCo + height * 0.5, width * 0.25, 0, Math.PI * 2);
-    context.fill();
+    drawEndMarker(context, xCo, yCo, width, height, wallEdges);
+    return;
   }
+
+  // Default: treat as floor
+  drawFloorTile(context, xCo, yCo, width, height);
+  drawWallBorders(context, xCo, yCo, width, height, wallEdges, diagonalWalls);
 };
 
 export default drawTile;
