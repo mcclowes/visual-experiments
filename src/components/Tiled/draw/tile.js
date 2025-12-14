@@ -4,6 +4,14 @@ const fill = squareType => {
   if (squareType === 1 || squareType === 2) {
     return `#fefef4`;
   }
+  // Start marker - muted green
+  if (squareType === 4) {
+    return `#4a7c4e`;
+  }
+  // End marker - brown (like doors)
+  if (squareType === 5) {
+    return `#8b4513`;
+  }
 
   //return `rgba(204, 204, 0, 0.8)`; //yellow
   return `rgba(248, 248, 244, 1)`; //grey
@@ -188,6 +196,25 @@ const drawTile = (context, width, height) => (x, y, grid) => {
     } else {
       context.fillRect(xCo, yCo + height / 6, width, (height / 3) * 2);
     }
+  }
+
+  // start marker (arrow)
+  if (squareType === 4) {
+    context.fillStyle = "#ffffff";
+    context.beginPath();
+    context.moveTo(xCo + width * 0.3, yCo + height * 0.2);
+    context.lineTo(xCo + width * 0.7, yCo + height * 0.5);
+    context.lineTo(xCo + width * 0.3, yCo + height * 0.8);
+    context.closePath();
+    context.fill();
+  }
+
+  // end marker (circle)
+  if (squareType === 5) {
+    context.fillStyle = "#ffffff";
+    context.beginPath();
+    context.arc(xCo + width * 0.5, yCo + height * 0.5, width * 0.25, 0, Math.PI * 2);
+    context.fill();
   }
 };
 

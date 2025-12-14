@@ -267,12 +267,12 @@ class Tiled extends Component {
 
     const context = canvas.getContext("2d");
 
-    // Use the new enhanced drawing for most generators
-    if (["perlin", "perlin-continent", "maze", "maze-prims", "maze-division", "maze-imperfect", "wfc", "bsp", "drunkard", "drunkard-simple", "drunkard-multi"].includes(generatorType)) {
+    // Perlin terrain uses specialized terrain renderer
+    if (["perlin", "perlin-continent"].includes(generatorType)) {
       drawGrid(context, grid, width, height, generatorType);
     } else {
-      // Use original drawing for caves and default
-      context.fillStyle = "#fefef4";
+      // All dungeon-style generators use the unified drawTile renderer
+      context.fillStyle = "#2d2d2d";
       context.fillRect(0, 0, width, height);
 
       const widthIncrement = width / grid[0].length;
