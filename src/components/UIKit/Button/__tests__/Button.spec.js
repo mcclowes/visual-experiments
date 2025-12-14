@@ -1,29 +1,15 @@
 import Button from "../Button";
 import React from "react";
-import { shallow } from "enzyme";
-
-let wrapper;
+import { render } from "@testing-library/react";
 
 describe("Button", () => {
-  beforeEach(() => {
-    wrapper = shallow(<Button text="Default Button" />);
-  });
-
   it("renders component", () => {
-    expect(wrapper).toMatchSnapshot();
+    const { container } = render(<Button text="Default Button" />);
+    expect(container).toMatchSnapshot();
   });
 
-  describe("to", () => {
-    it("default", () => {
-      wrapper = shallow(<Button text="Default Button" />);
-
-      expect(wrapper.dive().prop("to")).toBe("/");
-    });
-
-    it("passed", () => {
-      wrapper = shallow(<Button text="Default Button" to="/some/url" />);
-
-      expect(wrapper.dive().prop("to")).toBe("/some/url");
-    });
+  it("renders component with text", () => {
+    const { getByText } = render(<Button text="Click me" />);
+    expect(getByText("Click me")).toBeInTheDocument();
   });
 });

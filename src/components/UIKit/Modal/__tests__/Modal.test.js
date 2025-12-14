@@ -1,13 +1,16 @@
 import Modal from "../Modal";
 import React, { useState } from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import ReactModal from "react-modal";
-import { mount } from "enzyme";
+
+// Set app element for react-modal in tests
+ReactModal.setAppElement(document.createElement("div"));
 
 const ContentMock = () => {
   return <div>This is in a portal</div>;
 };
 
-const ModalWrapper = props => {
+const ModalWrapper = (props) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -15,7 +18,7 @@ const ModalWrapper = props => {
       <button onClick={() => setOpen(!open)}>Trigger</button>
 
       <Modal
-        isOpen={open}
+        open={open}
         doClose={() => setOpen(false)}
         closeIcon={true}
         {...props}
@@ -26,30 +29,19 @@ const ModalWrapper = props => {
   );
 };
 
-const mountComponent = (props = {}) => {
-  return mount(<ModalWrapper {...props} />);
-};
-
 describe("Modal", () => {
   it("interaction", () => {
-    const wrapper = mountComponent();
+    const { baseElement } = render(<ModalWrapper />);
 
-    expect(
-      wrapper
-        .find("Modal")
-        .at(0)
-        .prop("isOpen")
-    ).toBe(false);
+    // Modal should not be visible initially
+    expect(screen.queryByText("This is in a portal")).not.toBeInTheDocument();
 
-    wrapper.find("button").simulate("click");
+    // Click button to open modal
+    fireEvent.click(screen.getByText("Trigger"));
 
-    expect(
-      wrapper
-        .find("Modal")
-        .at(0)
-        .prop("isOpen")
-    ).toBe(true);
+    // Modal content should now be visible
+    expect(screen.getByText("This is in a portal")).toBeInTheDocument();
 
-    expect(wrapper).toMatchSnapshot();
+    expect(baseElement).toMatchSnapshot();
   });
 });

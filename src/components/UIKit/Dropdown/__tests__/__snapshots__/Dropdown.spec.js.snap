@@ -1,28 +1,76 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Dropdown renders component 1`] = `
-<Dropdown
-  handleClick={[Function]}
-  open={false}
-  placeholder="Default Dropdown"
-  setOpen={[Function]}
-/>
+<div>
+  <div
+    class="sc-dTvVRJ tHJPL"
+  >
+    <div
+      class="sc-hvigdm llTxhP"
+    >
+      Default Dropdown
+      <svg
+        class="sc-bRKDuR igujox"
+        focusable="false"
+        viewBox="0 0 32 32"
+      >
+        <path
+          d="M3.75,6.13,16,18.38,28.25,6.13,32,9.87l-16,16L0,9.87Z"
+        />
+      </svg>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`Dropdown renders component with options 1`] = `
-<Dropdown
-  handleClick={[Function]}
-  open={false}
-  options={
-    Array [
-      1,
-      2,
-      3,
-      4,
-      5,
-    ]
-  }
-  placeholder="Default Dropdown"
-  setOpen={[Function]}
-/>
+<div>
+  <div
+    class="sc-dTvVRJ tHJPL"
+  >
+    <div
+      class="sc-hvigdm llTxhP"
+    >
+      Default Dropdown
+      <svg
+        class="sc-bRKDuR igujox"
+        focusable="false"
+        viewBox="0 0 32 32"
+      >
+        <path
+          d="M3.75,6.13,16,18.38,28.25,6.13,32,9.87l-16,16L0,9.87Z"
+        />
+      </svg>
+    </div>
+    <div
+      class="sc-fhHczv lgDzbb"
+    >
+      <div
+        class="sc-ggWZvA"
+      >
+        1
+      </div>
+      <div
+        class="sc-ggWZvA"
+      >
+        2
+      </div>
+      <div
+        class="sc-ggWZvA"
+      >
+        3
+      </div>
+      <div
+        class="sc-ggWZvA"
+      >
+        4
+      </div>
+      <div
+        class="sc-ggWZvA"
+      >
+        5
+      </div>
+    </div>
+  </div>
+</div>
 `;

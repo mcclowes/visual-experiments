@@ -1,96 +1,61 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Modal interaction 1`] = `
-<ModalWrapper>
+<body
+  class="ReactModal__Body--open"
+>
+  <div
+    data-react-modal-body-trap=""
+    style="position: absolute; opacity: 0;"
+    tabindex="0"
+  />
   <div>
-    <button
-      onClick={[Function]}
-    >
-      Trigger
-    </button>
-    <Modal
-      closeIcon={true}
-      doClose={[Function]}
-      isOpen={true}
+    <div>
+      <button>
+        Trigger
+      </button>
+      <div />
+    </div>
+  </div>
+  <div
+    class="ReactModalPortal"
+  >
+    <div
+      class="ReactModal__Overlay modal-overlay"
     >
       <div
-        onClick={[Function]}
+        aria-modal="true"
+        class="ReactModal__Content modal-wrapper"
+        role="dialog"
+        tabindex="-1"
       >
-        <Modal
-          ariaHideApp={true}
-          bodyOpenClassName="ReactModal__Body--open"
-          className="modal-wrapper"
-          closeTimeoutMS={400}
-          isOpen={false}
-          onRequestClose={[Function]}
-          overlayClassName="modal-overlay"
-          parentSelector={[Function]}
-          portalClassName="ReactModalPortal"
-          role="dialog"
-          shouldCloseOnEsc={true}
-          shouldCloseOnOverlayClick={true}
-          shouldFocusAfterRender={true}
-          shouldReturnFocusAfterClose={true}
+        <div
+          class="sc-dTvVRJ KALXn"
         >
-          <Portal
-            containerInfo={
-              <div
-                class="ReactModalPortal"
-              />
-            }
+          <button
+            class="sc-jwTyAe gHtWEj"
           >
-            <ModalPortal
-              ariaHideApp={true}
-              bodyOpenClassName="ReactModal__Body--open"
-              className="modal-wrapper"
-              closeTimeoutMS={400}
-              defaultStyles={
-                Object {
-                  "content": Object {
-                    "WebkitOverflowScrolling": "touch",
-                    "background": "#fff",
-                    "border": "1px solid #ccc",
-                    "borderRadius": "4px",
-                    "bottom": "40px",
-                    "left": "40px",
-                    "outline": "none",
-                    "overflow": "auto",
-                    "padding": "20px",
-                    "position": "absolute",
-                    "right": "40px",
-                    "top": "40px",
-                  },
-                  "overlay": Object {
-                    "backgroundColor": "rgba(255, 255, 255, 0.75)",
-                    "bottom": 0,
-                    "left": 0,
-                    "position": "fixed",
-                    "right": 0,
-                    "top": 0,
-                  },
-                }
-              }
-              isOpen={false}
-              onRequestClose={[Function]}
-              overlayClassName="modal-overlay"
-              parentSelector={[Function]}
-              portalClassName="ReactModalPortal"
-              role="dialog"
-              shouldCloseOnEsc={true}
-              shouldCloseOnOverlayClick={true}
-              shouldFocusAfterRender={true}
-              shouldReturnFocusAfterClose={true}
-              style={
-                Object {
-                  "content": Object {},
-                  "overlay": Object {},
-                }
-              }
-            />
-          </Portal>
-        </Modal>
+            <svg
+              class="sc-ggWZvA jwnMIv"
+              focusable="false"
+              viewBox="0 0 32 32"
+            >
+              <path
+                d="M18.82,16l7.09,7.09l-2.82,2.82L16,18.82l-7.09,7.09l-2.82-2.82L13.18,16L6.09,8.91l2.82-2.82L16,13.18l7.09-7.09l2.82,2.82L18.82,16z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div>
+          This is in a portal
+        </div>
       </div>
-    </Modal>
+    </div>
   </div>
-</ModalWrapper>
+  <div
+    data-react-modal-body-trap=""
+    style="position: absolute; opacity: 0;"
+    tabindex="0"
+  />
+</body>
 `;

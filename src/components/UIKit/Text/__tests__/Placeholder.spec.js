@@ -1,50 +1,10 @@
 import Text from "../Text";
 import React from "react";
-import { shallow } from "enzyme";
-
-const defaultProps = {};
-
-const renderComponent = (newProps, textType = "Paragraph") => {
-  const props = {
-    ...defaultProps,
-    ...newProps
-  };
-
-  const Component = Text[textType];
-
-  return shallow(<Component {...props}>Some text goes here</Component>);
-};
-
-let wrapper;
+import { render } from "@testing-library/react";
 
 describe("Text", () => {
-  it("renders default component", () => {
-    wrapper = renderComponent();
-
-    expect(wrapper).toMatchSnapshot();
-  });
-
-  describe("Header", () => {
-    it("renders default component", () => {
-      wrapper = renderComponent();
-
-      expect(wrapper).toMatchSnapshot();
-    });
-  });
-
-  describe("Text", () => {
-    it("renders default component", () => {
-      wrapper = renderComponent();
-
-      expect(wrapper).toMatchSnapshot();
-    });
-  });
-
-  describe("Text", () => {
-    it("renders default component", () => {
-      wrapper = renderComponent();
-
-      expect(wrapper).toMatchSnapshot();
-    });
+  it("renders Paragraph component", () => {
+    const { container } = render(<Text.Paragraph>Some text goes here</Text.Paragraph>);
+    expect(container).toMatchSnapshot();
   });
 });

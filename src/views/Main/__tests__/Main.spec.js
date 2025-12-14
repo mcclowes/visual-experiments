@@ -1,22 +1,8 @@
 import Main from "../Main";
 import React from "react";
-import { shallow } from "enzyme";
-
-const defaultProps = {};
-
-const renderComponent = newProps => {
-  const props = {
-    ...defaultProps,
-    ...newProps
-  };
-
-  return shallow(<Main {...props} />);
-};
-
-let wrapper;
+import { render } from "@testing-library/react";
 
 it("renders component", () => {
-  wrapper = renderComponent();
-
-  expect(wrapper).toHaveLength(1);
+  const { container } = render(<Main />);
+  expect(container.firstChild).toBeInTheDocument();
 });

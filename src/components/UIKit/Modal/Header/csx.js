@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const HeaderWrapper = styled.div`
   padding: 1em;

@@ -1,7 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Padded renders default component 1`] = `
-<csx__PaddedWrapper
-  space="p1"
-/>
+<div>
+  <div
+    class="sc-bRKDuR fAyXOo"
+    space="p1"
+  />
+</div>
 `;

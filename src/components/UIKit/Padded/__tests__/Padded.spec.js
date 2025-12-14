@@ -1,24 +1,10 @@
 import Padded from "../Padded";
 import React from "react";
-import { shallow } from "enzyme";
-
-const defaultProps = {};
-
-const renderComponent = newProps => {
-  const props = {
-    ...defaultProps,
-    ...newProps
-  };
-
-  return shallow(<Padded {...props} />);
-};
-
-let wrapper;
+import { render } from "@testing-library/react";
 
 describe("Padded", () => {
   it("renders default component", () => {
-    wrapper = renderComponent();
-
-    expect(wrapper).toMatchSnapshot();
+    const { container } = render(<Padded />);
+    expect(container).toMatchSnapshot();
   });
 });

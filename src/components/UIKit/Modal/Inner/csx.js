@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const InnerWrapper = styled.div`
   background-color: white;

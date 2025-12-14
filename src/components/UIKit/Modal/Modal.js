@@ -10,7 +10,10 @@ import Inner from "./Inner";
 
 import "./modal.css";
 
-if (process.env.NODE_ENV !== "test") ReactModal.setAppElement("#root");
+// Set app element only in browser with #root (not in Storybook or tests)
+if (typeof window !== "undefined" && document.getElementById("root")) {
+  ReactModal.setAppElement("#root");
+}
 
 const Modal = props => {
   const { children, doClose, open, closeIcon, trigger } = props;

@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const IconWrapper = styled.svg`
   fill: ${props => props.theme.colors.black};

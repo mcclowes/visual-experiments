@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 const LoaderWrapper = styled.div`
   -webkit-animation: spin 2s linear infinite; /* Safari */

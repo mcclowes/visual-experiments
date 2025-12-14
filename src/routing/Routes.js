@@ -1,13 +1,15 @@
 import Main from "../views/Main";
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-const Routes = () => {
+const AppRoutes = () => {
   return (
     <Router>
-      <Route exact path="/" component={Main} />
+      <Routes>
+        <Route path="/" element={<Main />} />
+      </Routes>
     </Router>
   );
 };
 
-export default Routes;
+export default AppRoutes;

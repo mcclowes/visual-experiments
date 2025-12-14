@@ -1,9 +1,8 @@
 import MainContainer from "../MainContainer";
 import React from "react";
-import { shallow } from "enzyme";
+import { render } from "@testing-library/react";
 
 it("renders component", () => {
-  const wrapper = shallow(<MainContainer />);
-
-  expect(wrapper).toMatchSnapshot();
+  const { container } = render(<MainContainer />);
+  expect(container).toMatchSnapshot();
 });
