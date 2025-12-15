@@ -1,21 +1,17 @@
-import { randomItem } from "../utils/random";
-
 /**
- * Maze Generation using Recursive Backtracking
+ * Maze Generation Algorithms
  *
- * A classic depth-first search algorithm that creates perfect mazes
- * (mazes with exactly one path between any two points).
+ * Includes multiple maze generation algorithms:
+ * - Recursive Backtracking (depth-first search)
+ * - Prim's Algorithm
+ * - Recursive Division
  *
- * Also includes variants like Prim's algorithm and recursive division.
+ * Creates perfect mazes (exactly one path between any two points)
+ * with optional loop creation for imperfect mazes.
  */
 
-// Tile types (4 and 5 for start/end to avoid conflict with door types 2/3)
-const TILES = {
-  WALL: 0,
-  PASSAGE: 1,
-  START: 4,
-  END: 5
-};
+import { TILES } from '../constants/tiles';
+import { createRandomUtils } from '../utils/random';
 
 // Directions with wall-carving offsets (move 2 cells at a time)
 const DIRECTIONS = [
@@ -30,19 +26,8 @@ const DIRECTIONS = [
  */
 const createSolidGrid = (width, height) => {
   return Array(height)
-    .fill(0)
+    .fill(null)
     .map(() => Array(width).fill(TILES.WALL));
-};
-
-/**
- * Shuffle array in place (Fisher-Yates)
- */
-const shuffle = array => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
 };
 
 /**
@@ -56,19 +41,20 @@ const isInBounds = (x, y, width, height) => {
  * Recursive Backtracking Algorithm
  * Creates a perfect maze using depth-first search
  */
-const recursiveBacktracking = (grid, startX, startY) => {
+const recursiveBacktracking = (grid, startX, startY, rng) => {
   const width = grid[0].length;
   const height = grid.length;
   const stack = [{ x: startX, y: startY }];
 
-  grid[startY][startX] = TILES.PASSAGE;
+  grid[startY][startX] = TILES.FLOOR;
 
   while (stack.length > 0) {
     const current = stack[stack.length - 1];
     const { x, y } = current;
 
-    // Get unvisited neighbors
-    const unvisitedNeighbors = shuffle([...DIRECTIONS]).filter(dir => {
+    // Get unvisited neighbors (shuffled)
+    const directions = rng.shuffle([...DIRECTIONS]);
+    const unvisitedNeighbors = directions.filter(dir => {
       const nx = x + dir.dx;
       const ny = y + dir.dy;
       return (
@@ -78,21 +64,17 @@ const recursiveBacktracking = (grid, startX, startY) => {
     });
 
     if (unvisitedNeighbors.length === 0) {
-      // Backtrack
       stack.pop();
     } else {
-      // Choose a random unvisited neighbor
       const dir = unvisitedNeighbors[0];
       const nx = x + dir.dx;
       const ny = y + dir.dy;
       const wx = x + dir.wx;
       const wy = y + dir.wy;
 
-      // Carve passage
-      grid[wy][wx] = TILES.PASSAGE;
-      grid[ny][nx] = TILES.PASSAGE;
+      grid[wy][wx] = TILES.FLOOR;
+      grid[ny][nx] = TILES.FLOOR;
 
-      // Add new cell to stack
       stack.push({ x: nx, y: ny });
     }
   }
@@ -102,17 +84,15 @@ const recursiveBacktracking = (grid, startX, startY) => {
 
 /**
  * Prim's Algorithm
- * Creates a maze with a different character - tends to have shorter dead ends
+ * Creates a maze with shorter dead ends
  */
-const primsAlgorithm = (grid, startX, startY) => {
+const primsAlgorithm = (grid, startX, startY, rng) => {
   const width = grid[0].length;
   const height = grid.length;
   const frontier = [];
 
-  // Mark starting cell as passage
-  grid[startY][startX] = TILES.PASSAGE;
+  grid[startY][startX] = TILES.FLOOR;
 
-  // Add walls adjacent to starting cell to frontier
   const addFrontier = (x, y) => {
     for (const dir of DIRECTIONS) {
       const nx = x + dir.dx;
@@ -132,17 +112,13 @@ const primsAlgorithm = (grid, startX, startY) => {
   addFrontier(startX, startY);
 
   while (frontier.length > 0) {
-    // Pick random frontier cell
-    const index = Math.floor(Math.random() * frontier.length);
+    const index = rng.randomNumber(frontier.length - 1, 0);
     const cell = frontier[index];
     frontier.splice(index, 1);
 
     if (grid[cell.y][cell.x] === TILES.WALL) {
-      // Carve passage
-      grid[cell.wy][cell.wx] = TILES.PASSAGE;
-      grid[cell.y][cell.x] = TILES.PASSAGE;
-
-      // Add new frontier cells
+      grid[cell.wy][cell.wx] = TILES.FLOOR;
+      grid[cell.y][cell.x] = TILES.FLOOR;
       addFrontier(cell.x, cell.y);
     }
   }
@@ -154,32 +130,29 @@ const primsAlgorithm = (grid, startX, startY) => {
  * Recursive Division Algorithm
  * Starts with an open area and adds walls
  */
-const recursiveDivision = (grid, x, y, width, height, orientation) => {
+const recursiveDivision = (grid, x, y, width, height, orientation, rng) => {
   if (width < 3 || height < 3) return;
 
   const horizontal = orientation === "horizontal";
 
-  // Where to draw the wall
   let wx, wy;
   if (horizontal) {
-    wy = y + (Math.floor(Math.random() * ((height - 2) / 2)) * 2 + 1);
+    wy = y + (rng.randomNumber(Math.floor((height - 2) / 2), 0) * 2 + 1);
     wx = x;
   } else {
-    wx = x + (Math.floor(Math.random() * ((width - 2) / 2)) * 2 + 1);
+    wx = x + (rng.randomNumber(Math.floor((width - 2) / 2), 0) * 2 + 1);
     wy = y;
   }
 
-  // Where to put the passage
   let px, py;
   if (horizontal) {
-    px = x + (Math.floor(Math.random() * (width / 2)) * 2);
+    px = x + (rng.randomNumber(Math.floor(width / 2) - 1, 0) * 2);
     py = wy;
   } else {
     px = wx;
-    py = y + (Math.floor(Math.random() * (height / 2)) * 2);
+    py = y + (rng.randomNumber(Math.floor(height / 2) - 1, 0) * 2);
   }
 
-  // Draw the wall
   if (horizontal) {
     for (let i = x; i < x + width; i++) {
       if (i !== px && wy >= 0 && wy < grid.length && i >= 0 && i < grid[0].length) {
@@ -194,25 +167,24 @@ const recursiveDivision = (grid, x, y, width, height, orientation) => {
     }
   }
 
-  // Recurse
   if (horizontal) {
     const topHeight = wy - y;
     const bottomHeight = height - topHeight - 1;
 
     const nextOrientation = width > topHeight * 1.5 ? "vertical" : "horizontal";
-    recursiveDivision(grid, x, y, width, topHeight, nextOrientation);
+    recursiveDivision(grid, x, y, width, topHeight, nextOrientation, rng);
 
     const nextOrientation2 = width > bottomHeight * 1.5 ? "vertical" : "horizontal";
-    recursiveDivision(grid, x, wy + 1, width, bottomHeight, nextOrientation2);
+    recursiveDivision(grid, x, wy + 1, width, bottomHeight, nextOrientation2, rng);
   } else {
     const leftWidth = wx - x;
     const rightWidth = width - leftWidth - 1;
 
     const nextOrientation = height > leftWidth * 1.5 ? "horizontal" : "vertical";
-    recursiveDivision(grid, x, y, leftWidth, height, nextOrientation);
+    recursiveDivision(grid, x, y, leftWidth, height, nextOrientation, rng);
 
     const nextOrientation2 = height > rightWidth * 1.5 ? "horizontal" : "vertical";
-    recursiveDivision(grid, wx + 1, y, rightWidth, height, nextOrientation2);
+    recursiveDivision(grid, wx + 1, y, rightWidth, height, nextOrientation2, rng);
   }
 
   return grid;
@@ -225,44 +197,45 @@ const addStartEnd = (grid) => {
   const height = grid.length;
   const width = grid[0].length;
 
-  // Find first and last passages
   let startFound = false;
   let endFound = false;
+  let start = null;
+  let end = null;
 
-  // Start from top-left area
   for (let y = 1; y < height - 1 && !startFound; y++) {
     for (let x = 1; x < width - 1 && !startFound; x++) {
-      if (grid[y][x] === TILES.PASSAGE) {
+      if (grid[y][x] === TILES.FLOOR) {
         grid[y][x] = TILES.START;
+        start = { x, y };
         startFound = true;
       }
     }
   }
 
-  // End from bottom-right area
   for (let y = height - 2; y > 0 && !endFound; y--) {
     for (let x = width - 2; x > 0 && !endFound; x--) {
-      if (grid[y][x] === TILES.PASSAGE) {
+      if (grid[y][x] === TILES.FLOOR) {
         grid[y][x] = TILES.END;
+        end = { x, y };
         endFound = true;
       }
     }
   }
 
-  return grid;
+  return { start, end };
 };
 
 /**
  * Create loops in the maze (imperfect maze)
  */
-const addLoops = (grid, loopChance = 0.1) => {
+const addLoops = (grid, loopChance, rng) => {
   const height = grid.length;
   const width = grid[0].length;
 
   for (let y = 2; y < height - 2; y += 2) {
     for (let x = 2; x < width - 2; x += 2) {
-      if (grid[y][x] === TILES.WALL && Math.random() < loopChance) {
-        grid[y][x] = TILES.PASSAGE;
+      if (grid[y][x] === TILES.WALL && rng.chance(loopChance)) {
+        grid[y][x] = TILES.FLOOR;
       }
     }
   }
@@ -272,14 +245,26 @@ const addLoops = (grid, loopChance = 0.1) => {
 
 /**
  * Main maze generator
+ *
+ * @param {number} tiles - Grid size
+ * @param {object} options - Configuration options
+ * @param {number} [options.seed] - Random seed for reproducibility
+ * @param {string} [options.algorithm="backtracking"] - "backtracking", "prims", or "division"
+ * @param {boolean} [options.addStartEndMarkers=true] - Add start/end markers
+ * @param {number} [options.loopChance=0] - Chance to add loops (0 = perfect maze)
+ * @param {number} [options.openness=0] - Additional random passage removal
+ * @returns {{grid: number[][], seed: number, stats: object}}
  */
 const generateMaze = (tiles, options = {}) => {
   const {
-    algorithm = "backtracking",  // "backtracking", "prims", or "division"
-    addStartEndMarkers = true,   // Add start/end markers
-    loopChance = 0,              // Chance to add loops (0 = perfect maze)
-    openness = 0                 // Additional random passage removal
+    seed,
+    algorithm = "backtracking",
+    addStartEndMarkers = true,
+    loopChance = 0,
+    openness = 0
   } = options;
+
+  const rng = createRandomUtils(seed);
 
   // Ensure odd dimensions for proper maze
   const width = tiles % 2 === 0 ? tiles - 1 : tiles;
@@ -288,60 +273,71 @@ const generateMaze = (tiles, options = {}) => {
   let grid;
 
   if (algorithm === "division") {
-    // Recursive division starts with open space
     grid = Array(tiles)
-      .fill(0)
+      .fill(null)
       .map((_, y) =>
         Array(tiles)
-          .fill(0)
+          .fill(null)
           .map((_, x) => {
-            // Border walls
             if (x === 0 || y === 0 || x === tiles - 1 || y === tiles - 1) {
               return TILES.WALL;
             }
-            return TILES.PASSAGE;
+            return TILES.FLOOR;
           })
       );
 
     const orientation = width > height ? "vertical" : "horizontal";
-    recursiveDivision(grid, 1, 1, tiles - 2, tiles - 2, orientation);
+    recursiveDivision(grid, 1, 1, tiles - 2, tiles - 2, orientation, rng);
   } else {
-    // Other algorithms start with solid walls
     grid = createSolidGrid(tiles, tiles);
 
-    // Ensure starting point is on odd coordinates
     const startX = 1;
     const startY = 1;
 
     if (algorithm === "prims") {
-      primsAlgorithm(grid, startX, startY);
+      primsAlgorithm(grid, startX, startY, rng);
     } else {
-      recursiveBacktracking(grid, startX, startY);
+      recursiveBacktracking(grid, startX, startY, rng);
     }
   }
 
   // Add loops if requested
   if (loopChance > 0) {
-    addLoops(grid, loopChance);
+    addLoops(grid, loopChance, rng);
   }
 
   // Add random openness
   if (openness > 0) {
     for (let y = 1; y < tiles - 1; y++) {
       for (let x = 1; x < tiles - 1; x++) {
-        if (grid[y][x] === TILES.WALL && Math.random() < openness) {
-          grid[y][x] = TILES.PASSAGE;
+        if (grid[y][x] === TILES.WALL && rng.chance(openness)) {
+          grid[y][x] = TILES.FLOOR;
         }
       }
     }
   }
 
   // Add start and end markers
+  let markers = { start: null, end: null };
   if (addStartEndMarkers) {
-    addStartEnd(grid);
+    markers = addStartEnd(grid);
   }
 
-  return grid;
+  return {
+    grid,
+    seed: rng.seed,
+    stats: {
+      algorithm,
+      isPerfect: loopChance === 0 && openness === 0,
+      markers
+    }
+  };
 };
 
-export default generateMaze;
+// Default export for backward compatibility
+export default (tiles, options = {}) => {
+  const result = generateMaze(tiles, options);
+  return result.grid;
+};
+
+export { generateMaze };

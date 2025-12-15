@@ -1,5 +1,3 @@
-import { randomNumber, randomItem } from "../utils/random";
-
 /**
  * Drunkard's Walk Algorithm
  *
@@ -10,11 +8,9 @@ import { randomNumber, randomItem } from "../utils/random";
  * until a target percentage of the grid is carved out.
  */
 
-// Tile types
-const TILES = {
-  WALL: 0,
-  FLOOR: 1
-};
+import { TILES } from '../constants/tiles';
+import { createRandomUtils } from '../utils/random';
+import { keepLargestRegion, placeStartEnd } from '../utils/connectivity';
 
 // Direction offsets for cardinal movement
 const DIRECTIONS = [
@@ -29,7 +25,7 @@ const DIRECTIONS = [
  */
 const createSolidGrid = (width, height) => {
   return Array(height)
-    .fill(0)
+    .fill(null)
     .map(() => Array(width).fill(TILES.WALL));
 };
 
@@ -56,14 +52,13 @@ const isInBounds = (x, y, width, height) => {
 /**
  * Perform a single drunkard's walk from a starting position
  */
-const walkDrunk = (grid, startX, startY, targetFloors, width, height) => {
+const walkDrunk = (grid, startX, startY, targetFloors, width, height, rng) => {
   let x = startX;
   let y = startY;
   let stepsWithoutCarving = 0;
   const maxStepsWithoutCarving = width * height;
 
   while (countFloors(grid) < targetFloors && stepsWithoutCarving < maxStepsWithoutCarving) {
-    // Carve current position
     if (grid[y][x] === TILES.WALL) {
       grid[y][x] = TILES.FLOOR;
       stepsWithoutCarving = 0;
@@ -71,12 +66,10 @@ const walkDrunk = (grid, startX, startY, targetFloors, width, height) => {
       stepsWithoutCarving++;
     }
 
-    // Pick random direction
-    const dir = randomItem(DIRECTIONS);
+    const dir = rng.randomItem(DIRECTIONS);
     const newX = x + dir.dx;
     const newY = y + dir.dy;
 
-    // Move if in bounds
     if (isInBounds(newX, newY, width, height)) {
       x = newX;
       y = newY;
@@ -89,18 +82,16 @@ const walkDrunk = (grid, startX, startY, targetFloors, width, height) => {
 /**
  * Multiple walkers variant - spawn multiple drunkards
  */
-const multipleWalkers = (grid, numWalkers, targetFloors, width, height) => {
+const multipleWalkers = (grid, numWalkers, targetFloors, width, height, rng) => {
   const walkerSteps = Math.ceil(targetFloors / numWalkers);
 
   for (let i = 0; i < numWalkers; i++) {
-    // Start from a random floor tile or center
     let startX, startY;
 
     if (countFloors(grid) === 0) {
       startX = Math.floor(width / 2);
       startY = Math.floor(height / 2);
     } else {
-      // Find a random floor tile to start from
       const floorTiles = [];
       for (let y = 1; y < height - 1; y++) {
         for (let x = 1; x < width - 1; x++) {
@@ -109,12 +100,12 @@ const multipleWalkers = (grid, numWalkers, targetFloors, width, height) => {
           }
         }
       }
-      const start = randomItem(floorTiles);
+      const start = rng.randomItem(floorTiles);
       startX = start.x;
       startY = start.y;
     }
 
-    walkDrunk(grid, startX, startY, countFloors(grid) + walkerSteps, width, height);
+    walkDrunk(grid, startX, startY, countFloors(grid) + walkerSteps, width, height, rng);
   }
 
   return grid;
@@ -123,7 +114,7 @@ const multipleWalkers = (grid, numWalkers, targetFloors, width, height) => {
 /**
  * Weighted walk - bias direction towards less carved areas
  */
-const weightedWalk = (grid, startX, startY, targetFloors, width, height) => {
+const weightedWalk = (grid, startX, startY, targetFloors, width, height, rng) => {
   let x = startX;
   let y = startY;
   let steps = 0;
@@ -132,17 +123,14 @@ const weightedWalk = (grid, startX, startY, targetFloors, width, height) => {
   while (countFloors(grid) < targetFloors && steps < maxSteps) {
     steps++;
 
-    // Carve current position
     grid[y][x] = TILES.FLOOR;
 
-    // Calculate weights for each direction based on wall neighbors
     const weights = DIRECTIONS.map(dir => {
       const newX = x + dir.dx;
       const newY = y + dir.dy;
 
       if (!isInBounds(newX, newY, width, height)) return 0;
 
-      // Count walls in a 3x3 area around the target
       let wallCount = 0;
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
@@ -160,15 +148,13 @@ const weightedWalk = (grid, startX, startY, targetFloors, width, height) => {
         }
       }
 
-      // Higher weight for areas with more walls (unexplored)
       return wallCount + 1;
     });
 
-    // Weighted random selection
     const totalWeight = weights.reduce((a, b) => a + b, 0);
     if (totalWeight === 0) break;
 
-    let random = Math.random() * totalWeight;
+    let random = rng.random() * totalWeight;
     let selectedDir = DIRECTIONS[0];
 
     for (let i = 0; i < weights.length; i++) {
@@ -193,39 +179,78 @@ const weightedWalk = (grid, startX, startY, targetFloors, width, height) => {
 
 /**
  * Main Drunkard's Walk generator
+ *
  * @param {number} tiles - Grid size
  * @param {object} options - Configuration options
+ * @param {number} [options.seed] - Random seed for reproducibility
+ * @param {number} [options.fillPercentage=0.45] - Target percentage of floor tiles
+ * @param {string} [options.variant="weighted"] - "simple", "multiple", or "weighted"
+ * @param {number} [options.numWalkers=4] - Number of walkers for "multiple" variant
+ * @param {boolean} [options.ensureConnected=true] - Ensure single connected region
+ * @param {boolean} [options.placeMarkers=false] - Place start/end markers
+ * @returns {{grid: number[][], seed: number, stats: object}}
  */
 const generateDrunkardWalk = (tiles, options = {}) => {
   const {
-    fillPercentage = 0.45,      // Target percentage of floor tiles
-    variant = "weighted",       // "simple", "multiple", or "weighted"
-    numWalkers = 4              // Number of walkers for "multiple" variant
+    seed,
+    fillPercentage = 0.45,
+    variant = "weighted",
+    numWalkers = 4,
+    ensureConnected = true,
+    placeMarkers = false
   } = options;
 
+  const rng = createRandomUtils(seed);
   const width = tiles;
   const height = tiles;
   const grid = createSolidGrid(width, height);
   const targetFloors = Math.floor(width * height * fillPercentage);
 
-  // Starting position (center)
   const startX = Math.floor(width / 2);
   const startY = Math.floor(height / 2);
 
   switch (variant) {
     case "simple":
-      walkDrunk(grid, startX, startY, targetFloors, width, height);
+      walkDrunk(grid, startX, startY, targetFloors, width, height, rng);
       break;
     case "multiple":
-      multipleWalkers(grid, numWalkers, targetFloors, width, height);
+      multipleWalkers(grid, numWalkers, targetFloors, width, height, rng);
       break;
     case "weighted":
     default:
-      weightedWalk(grid, startX, startY, targetFloors, width, height);
+      weightedWalk(grid, startX, startY, targetFloors, width, height, rng);
       break;
   }
 
-  return grid;
+  // Ensure connectivity
+  if (ensureConnected) {
+    keepLargestRegion(grid);
+  }
+
+  // Place markers
+  let markers = { start: null, end: null };
+  if (placeMarkers) {
+    markers = placeStartEnd(grid, rng);
+  }
+
+  // Calculate stats
+  const floorCount = countFloors(grid);
+
+  return {
+    grid,
+    seed: rng.seed,
+    stats: {
+      floorPercentage: (floorCount / (tiles * tiles) * 100).toFixed(1),
+      variant,
+      markers
+    }
+  };
 };
 
-export default generateDrunkardWalk;
+// Default export for backward compatibility
+export default (tiles, options = {}) => {
+  const result = generateDrunkardWalk(tiles, options);
+  return result.grid;
+};
+
+export { generateDrunkardWalk };
